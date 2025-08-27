@@ -71,7 +71,7 @@ A simulated payment processing API designed by Temiloluwa Ogunbanjo to handle fi
 1. **Clone the repository**
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/temiogunbanjo/apextest
    cd apextest
    ```
 
