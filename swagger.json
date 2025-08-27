@@ -92,6 +92,87 @@
             }
           }
         }
+      },
+      "post": {
+        "summary": "Create New Merchant",
+        "description": "Create a new merchant",
+        "tags": ["Merchants"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "name of the merchant"
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "email of the merchant"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction initiated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Transaction"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Transaction initiated successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - Idempotency key conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/v1/transactions": {
@@ -427,7 +508,15 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["settlementId", "merchantId", "totalAmount", "settlementDate", "status", "signature", "timestamp"],
+                "required": [
+                  "settlementId",
+                  "merchantId",
+                  "totalAmount",
+                  "settlementDate",
+                  "status",
+                  "signature",
+                  "timestamp"
+                ],
                 "properties": {
                   "settlementId": {
                     "type": "string",
@@ -453,7 +542,7 @@
                     "type": "number",
                     "format": "decimal",
                     "description": "Total settlement amount",
-                    "example": 5000.00
+                    "example": 5000.0
                   },
                   "settlementDate": {
                     "type": "string",
@@ -864,7 +953,7 @@
             "type": "number",
             "format": "decimal",
             "description": "Transaction amount",
-            "example": 1000.00
+            "example": 1000.0
           },
           "currency": {
             "type": "string",
@@ -906,7 +995,13 @@
           "status": {
             "type": "string",
             "description": "Transaction status",
-            "enum": ["pending", "initiated", "authorized", "declined", "settled"],
+            "enum": [
+              "pending",
+              "initiated",
+              "authorized",
+              "declined",
+              "settled"
+            ],
             "example": "initiated"
           },
           "transactionStatus": {
@@ -1003,7 +1098,7 @@
             "type": "number",
             "format": "decimal",
             "description": "Total settlement amount",
-            "example": 5000.00
+            "example": 5000.0
           },
           "settlementDate": {
             "type": "string",

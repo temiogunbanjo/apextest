@@ -5,7 +5,7 @@ const {
   sendSuccessResponse,
   sendIdempotentErrorResponse,
 } = require("../utils/sendResponses");
-const { fetchAllMerchants, fetchMerchantById } = require("../db/merchants");
+const { fetchAllMerchants, fetchMerchantById, createMerchant } = require("../db/merchants");
 
 /**
  *
@@ -35,6 +35,32 @@ const handleIdempotentControllerError = (error) => {
 };
 
 module.exports = {
+  createNewMerchant: async (req, res) => {
+    try {
+      const { name, email } = req.body;
+      const existingMerchant = await fetchMerchantById(email);
+      if (existingMerchant) {
+        return sendErrorResponse(
+          res,
+          "Merchant with this email already exists",
+          STATUS_CODES.CONFLICT
+        );
+      }
+      // Assuming createMerchant is a function that creates a merchant in the DB
+      const merchantData = { name, email };
+      const merchant = await createMerchant(merchantData);
+      if (!merchant) {
+        return sendErrorResponse(
+          res,
+          "Failed to create merchant",
+          STATUS_CODES.INTERNAL_SERVER_ERROR
+        );
+      }
+      return sendSuccessResponse(res, merchant, STATUS_CODES.OK);
+    } catch (error) {
+      return handleControllerError(error, res);
+    }
+  },
   fetchMerchants: async (req, res) => {
     try {
       const response = await fetchAllMerchants();

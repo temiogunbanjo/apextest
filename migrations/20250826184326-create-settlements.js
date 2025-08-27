@@ -10,22 +10,39 @@ module.exports = {
       },
       merchantId: {
         type: Sequelize.UUID,
-        allowNull: false
+        allowNull: false,
       },
       totalAmount: {
         type: Sequelize.DECIMAL(14, 2),
-        allowNull: false
+        allowNull: false,
       },
       settlementDate: {
         type: Sequelize.DATEONLY,
-        allowNull: false
+        allowNull: false,
       },
       reference: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       status: {
-        type: Sequelize.ENUM("pending", "completed", "failed"),
+        type: Sequelize.STRING, // "pending", "processing", "completed", "failed", "deleted"
         defaultValue: "pending",
+      },
+      failureReason: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      completedAt: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      failedAt: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      transactionIds: {
+        type: Sequelize.JSON,
+        allowNull: true,
+        comment: "Array of transaction IDs included in this settlement",
       },
       createdAt: {
         allowNull: false,

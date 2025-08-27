@@ -6,6 +6,11 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const webhookRateLimit = require("../middlewares/webhookRateLimit");
 
 router.get("/", controllers.getIndex);
+router.post(
+  "/merchants",
+  validateRequestBody(["name", "email"]),
+  controllers.createNewMerchant
+);
 router.get("/merchants", controllers.fetchMerchants);
 
 router.get("/transactions", authMiddleware, controllers.fetchTransactions);
@@ -21,7 +26,7 @@ router.post(
   controllers.authorizeTransaction
 );
 
-// TODO: Add capture and refund endpoints 
+// TODO: Add capture and refund endpoints
 
 router.get("/transactions/:id/status", controllers.fetchSingleTransaction);
 
