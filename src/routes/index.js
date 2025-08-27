@@ -6,12 +6,12 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const webhookRateLimit = require("../middlewares/webhookRateLimit");
 
 router.get("/", controllers.getIndex);
+router.get("/merchants", controllers.fetchMerchants);
 router.post(
   "/merchants",
   validateRequestBody(["name", "email"]),
   controllers.createNewMerchant
 );
-router.get("/merchants", controllers.fetchMerchants);
 
 router.get("/transactions", authMiddleware, controllers.fetchTransactions);
 router.post(

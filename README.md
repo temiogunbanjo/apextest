@@ -88,6 +88,7 @@ A simulated payment processing API designed by Temiloluwa Ogunbanjo to handle fi
    NODE_ENV=development
    PORT=3000
    JWT_SECRET=your_jwt_secret_here
+   WEBHOOK_SECRET=your_payment_processor_secret
    REDIS_URL=redis://localhost:6379
    DATABASE_URL_TEST=postgresql://user:password@localhost/prod_db
    DATABASE_URL_PROD=postgresql://user:password@localhost/prod_db

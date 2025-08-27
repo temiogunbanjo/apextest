@@ -18,7 +18,7 @@ const {
   updateTransaction,
 } = require("../src/db/transactions");
 const processor = require("../src/core/paymentProcessor");
-const { generateUniqueId } = require("../src/utils/generate");
+const { generateUniqueId } = require("../src/utils/generators");
 
 describe("Transaction Controller Logic", () => {
   beforeEach(() => {

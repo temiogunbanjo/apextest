@@ -15,6 +15,11 @@ const fetchMerchantById = async (id) => {
   return merchant;
 };
 
+const fetchMerchantByEmail = async (email) => {
+  const merchant = await Merchants.findOne({ where: { email } });
+  return merchant;
+};
+
 const fetchAllMerchants = async (id) => {
   const merchants = await Merchants.findAll();
   return merchants;
@@ -28,6 +33,7 @@ const updateMerchant = async (id, updateData) => {
 module.exports = {
   createMerchant,
   fetchMerchantById,
+  fetchMerchantByEmail,
   fetchAllMerchants,
   updateMerchant
 };

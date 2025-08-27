@@ -12,6 +12,10 @@
     {
       "url": "http://localhost:3000",
       "description": "Development server"
+    },
+    {
+      "url": "http://localhost:3001",
+      "description": "Development server"
     }
   ],
   "paths": {
@@ -119,8 +123,8 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "Transaction initiated successfully",
+          "201": {
+            "description": "Merchant created successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -132,10 +136,6 @@
                     },
                     "data": {
                       "$ref": "#/components/schemas/Transaction"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Transaction initiated successfully"
                     }
                   }
                 }
@@ -148,16 +148,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BadRequestErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict - Idempotency key conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }

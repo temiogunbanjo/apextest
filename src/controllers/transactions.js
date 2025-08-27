@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require("uuid");
 const STATUS_CODES = require("../constants/statusCodes");
 const logger = require("../events/logger");
-const { generateUniqueId } = require("../utils/generate");
+const { generateUniqueId } = require("../utils/generators");
 const {
   sendErrorResponse,
   sendSuccessResponse,

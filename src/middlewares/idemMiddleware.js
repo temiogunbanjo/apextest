@@ -1,6 +1,6 @@
 const STATUS_CODES = require("../constants/statusCodes");
 const redisClient = require("../core/redisClient");
-const { hashRequest } = require("../utils/hash");
+const { hashRequest } = require("../utils/encryption");
 const { sendErrorResponse } = require("../utils/sendResponses");
 
 /**

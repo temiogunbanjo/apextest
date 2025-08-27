@@ -1,11 +1,13 @@
 const STATUS_CODES = require("../constants/statusCodes");
-const logger = require("../events/logger");
 const {
   sendErrorResponse,
   sendSuccessResponse,
-  sendIdempotentErrorResponse,
 } = require("../utils/sendResponses");
-const { fetchAllMerchants, fetchMerchantById, createMerchant } = require("../db/merchants");
+const {
+  fetchAllMerchants,
+  createMerchant,
+  fetchMerchantByEmail,
+} = require("../db/merchants");
 
 /**
  *
@@ -21,24 +23,11 @@ const handleControllerError = (error, res) => {
   );
 };
 
-/**
- *
- * @param {Error} error
- * @param {import('express').Response} res
- * @returns
- */
-const handleIdempotentControllerError = (error) => {
-  return sendIdempotentErrorResponse(
-    error.message,
-    STATUS_CODES.INTERNAL_SERVER_ERROR
-  );
-};
-
 module.exports = {
   createNewMerchant: async (req, res) => {
     try {
       const { name, email } = req.body;
-      const existingMerchant = await fetchMerchantById(email);
+      const existingMerchant = await fetchMerchantByEmail(email);
       if (existingMerchant) {
         return sendErrorResponse(
           res,
@@ -48,6 +37,7 @@ module.exports = {
       }
       // Assuming createMerchant is a function that creates a merchant in the DB
       const merchantData = { name, email };
+      console.log("Creating merchant with data:", merchantData);
       const merchant = await createMerchant(merchantData);
       if (!merchant) {
         return sendErrorResponse(

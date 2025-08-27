@@ -11,7 +11,7 @@ const { fetchMerchantById } = require("../src/db/merchants");
 const { createSettlement, updateSettlement } = require("../src/db/settlements");
 const { updateTransaction } = require("../src/db/transactions");
 const { validateWebhookPayload } = require("../src/utils/validators");
-const { generateWebhookSignature } = require("../src/utils/generate");
+const { generateWebhookSignature } = require("../src/utils/generators");
 
 describe("Settlement Webhook", () => {
   const mockMerchant = {
