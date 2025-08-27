@@ -1,6 +1,6 @@
 # Apex Test - Payment Processing API
 
-A robust payment processing API designed to handle financial transactions between merchants and payment processors. Built with enterprise-grade architecture focusing on reliability, security, and scalability.
+A simulated payment processing API designed by Temiloluwa Ogunbanjo to handle financial transactions between merchants and payment processors. Built with enterprise-grade architecture focusing on reliability, security, and scalability.
 
 ## Features
 
@@ -148,6 +148,8 @@ A robust payment processing API designed to handle financial transactions betwee
 - `GET /v1/transactions` - Fetch all transactions
 - `POST /v1/transactions/initiate` - Create transaction
 - `POST /v1/transactions/:id/authorize` - Authorize transaction
+- `GET /v1/settlements/:id` - Get settlement status
+- `GET /v1/settlements/:merchantId/merchants` - Get settlements for a singlee merchant
 
 ## Idempotency Implementation
 
@@ -257,17 +259,8 @@ Interactive API documentation is available at `/api-docs` when the server is run
 6. **Logging**: Centralized log aggregation
 7. **Security**: HTTPS, rate limiting, CORS configuration
 
-## Contributing
 
-### Development Workflow
-
-1. Fork the repository
-2. Create feature branch
-3. Implement changes with tests
-4. Submit pull request
-5. Code review and merge
-
-### Code Standards
+## Code Standards
 
 - **ESLint**: Code quality enforcement
 - **JSDoc**: Function documentation

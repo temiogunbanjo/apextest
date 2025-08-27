@@ -23,7 +23,7 @@ function idempotent(handler) {
 
       const requestHash = hashRequest(request.body);
       const redisKey = `idempotency:${key}`;
-      const expiryDuration = 60; // 1 minute
+      const expiryDuration = 300; // 5 minute
 
       const existing = await redisClient.get(redisKey);
 
