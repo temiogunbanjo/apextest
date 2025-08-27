@@ -1,0 +1,17 @@
+{
+  "development": {
+    "storage": "./database.sqlite",
+    "dialect": "sqlite",
+    "logging": false
+  },
+  "test": {
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "use_env_variable": "DATABASE_URL_TEST"
+  },
+  "production": {
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "use_env_variable": "DATABASE_URL_PROD"
+  }
+}

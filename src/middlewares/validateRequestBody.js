@@ -1,5 +1,5 @@
 const STATUS_CODES = require("../constants/statusCodes");
-const checkRequiredFields = require("../utils/checkRequiredFields");
+const { checkRequiredFields } = require("../utils/validators");
 const { sendErrorResponse } = require("../utils/sendResponses");
 
 /**

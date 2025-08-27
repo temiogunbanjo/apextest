@@ -1,3 +1,5 @@
+const crypto = require("node:crypto");
+
 /**
  *
  * @param {string} prefix
@@ -20,8 +22,6 @@ const processor = {
    * @returns
    */
   async authorize(payload) {
-    // Call your processor's "card present authorize" endpoint here.
-    // Return shape normalized.
     return {
       status: "approved", // or "declined"
       authCode: "A12345",

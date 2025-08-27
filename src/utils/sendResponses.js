@@ -22,7 +22,31 @@ const sendErrorResponse = (
   });
 };
 
+const sendIdempotentSuccessResponse = (
+  data,
+  statusCode = STATUS_CODES.OK
+) => {
+  return {
+    code: statusCode,
+    success: true,
+    data,
+  };
+};
+
+const sendIdempotentErrorResponse = (
+  errorMessage,
+  statusCode = STATUS_CODES.INTERNAL_SERVER_ERROR
+) => {
+  return {
+    code: statusCode,
+    success: false,
+    error: errorMessage,
+  };
+};
+
 module.exports = {
   sendSuccessResponse,
   sendErrorResponse,
+  sendIdempotentSuccessResponse,
+  sendIdempotentErrorResponse
 };

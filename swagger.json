@@ -1,3 +1,1090 @@
 {
-    
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Apex Test API",
+    "description": "Payment processing API for handling financial transactions between merchants and payment processors",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Ogunbanjo Temiloluwa"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Check if the server is running",
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "Server is up and running",
+            "content": {
+              "text/plain": {
+                "example": "Welcome to the API"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Server Health Status",
+        "description": "Check server health status",
+        "tags": ["Health"],
+        "responses": {
+          "200": {
+            "description": "Server is up and running",
+            "content": {
+              "text/plain": {
+                "example": "Server is up and running"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/merchants": {
+      "get": {
+        "summary": "Fetch All Merchants",
+        "description": "Retrieve a list of all registered merchants",
+        "tags": ["Merchants"],
+        "responses": {
+          "200": {
+            "description": "List of merchants retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Merchant"
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Merchants retrieved successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transactions": {
+      "get": {
+        "summary": "Fetch All Transactions",
+        "description": "Retrieve all transactions (requires authentication)",
+        "tags": ["Transactions"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of transactions retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Transaction"
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Transactions retrieved successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transactions/initiate": {
+      "post": {
+        "summary": "Initiate Transaction",
+        "description": "Create a new payment transaction",
+        "tags": ["Transactions"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["isoMessage"],
+                "properties": {
+                  "isoMessage": {
+                    "type": "string",
+                    "description": "ISO message in format: MTI|CardNumber|Amount|MerchantId",
+                    "example": "0200|4111111111111111|1000.00|merchant-uuid-123"
+                  },
+                  "currency": {
+                    "type": "string",
+                    "description": "Transaction currency (defaults to NGN)",
+                    "default": "NGN",
+                    "example": "NGN"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction initiated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Transaction"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Transaction initiated successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid input data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - Idempotency key conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transactions/{id}/authorize": {
+      "post": {
+        "summary": "Authorize Transaction",
+        "description": "Authorize a pending transaction with EMV data",
+        "tags": ["Transactions"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Transaction ID",
+            "schema": {
+              "type": "string"
+            },
+            "example": "123"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["emvData"],
+                "properties": {
+                  "emvData": {
+                    "type": "string",
+                    "description": "EMV chip card data for authorization",
+                    "example": "emv_payload_data_here"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction authorized successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Transaction"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Transaction authorized successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid transaction state or authorization failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Transaction not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - Idempotency key conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transactions/{id}/status": {
+      "get": {
+        "summary": "Get Transaction Status",
+        "description": "Retrieve the status of a specific transaction",
+        "tags": ["Transactions"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Transaction ID",
+            "schema": {
+              "type": "string"
+            },
+            "example": "123"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction status retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Transaction"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Transaction status retrieved successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Missing transaction ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Transaction not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/settlements/webhook": {
+      "post": {
+        "summary": "Settlement Webhook",
+        "description": "Webhook endpoint for receiving settlement notifications from payment processors",
+        "tags": ["Settlements"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["settlementId", "merchantId", "totalAmount", "settlementDate", "status", "signature", "timestamp"],
+                "properties": {
+                  "settlementId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Unique settlement identifier",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                  },
+                  "merchantId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Merchant identifier",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                  },
+                  "transactionIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Array of transaction IDs included in settlement",
+                    "example": ["123", "124", "125"]
+                  },
+                  "totalAmount": {
+                    "type": "number",
+                    "format": "decimal",
+                    "description": "Total settlement amount",
+                    "example": 5000.00
+                  },
+                  "settlementDate": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Settlement date",
+                    "example": "2024-01-15"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "description": "Settlement reference number",
+                    "example": "SETT-2024-001"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["initiated", "processing", "completed", "failed"],
+                    "description": "Settlement status",
+                    "example": "completed"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "HMAC signature for webhook verification",
+                    "example": "sha256=abc123def456..."
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Webhook timestamp",
+                    "example": "2024-01-15T10:30:00Z"
+                  },
+                  "failureReason": {
+                    "type": "string",
+                    "description": "Reason for failure (if status is failed)",
+                    "example": "Insufficient funds"
+                  },
+                  "completedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Completion timestamp",
+                    "example": "2024-01-15T10:35:00Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook processed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "settlementId": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Settlement webhook processed successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid webhook data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid webhook signature",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests - Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/settlements/{id}": {
+      "get": {
+        "summary": "Get Settlement Status",
+        "description": "Retrieve settlement details and status",
+        "tags": ["Settlements"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Settlement ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Settlement details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Settlement"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Settlement details retrieved successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Settlement not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/settlements/{merchantId}/merchants": {
+      "get": {
+        "summary": "Get Merchant Settlements",
+        "description": "Retrieve all settlements for a specific merchant",
+        "tags": ["Settlements"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "merchantId",
+            "in": "path",
+            "required": true,
+            "description": "Merchant ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Filter by settlement status",
+            "schema": {
+              "type": "string",
+              "enum": ["pending", "processing", "completed", "failed"]
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": false,
+            "description": "Start date for filtering (YYYY-MM-DD)",
+            "example": "2024-01-01"
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": false,
+            "description": "End date for filtering (YYYY-MM-DD)",
+            "example": "2024-01-31"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Number of settlements to return (default: 50)",
+            "schema": {
+              "type": "integer",
+              "default": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Number of settlements to skip (default: 0)",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Merchant settlements retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Settlement"
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Merchant settlements retrieved successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Merchant not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token for authentication"
+      }
+    },
+    "schemas": {
+      "Merchant": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique merchant identifier",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "name": {
+            "type": "string",
+            "description": "Merchant business name",
+            "example": "Merchant 1"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Merchant email address",
+            "example": "merchant1@gmail.com"
+          },
+          "bankAccountNumber": {
+            "type": "string",
+            "description": "Merchant bank account number",
+            "example": "0123456789"
+          },
+          "bankName": {
+            "type": "string",
+            "description": "Merchant bank name",
+            "example": "GTBank"
+          },
+          "settlementCurrency": {
+            "type": "string",
+            "description": "Preferred settlement currency",
+            "default": "NGN",
+            "example": "NGN"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Merchant creation timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Merchant last update timestamp"
+          }
+        }
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Auto-incrementing transaction ID",
+            "example": 1
+          },
+          "uniqueId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique transaction identifier",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "merchantId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Associated merchant ID",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal",
+            "description": "Transaction amount",
+            "example": 1000.00
+          },
+          "currency": {
+            "type": "string",
+            "description": "Transaction currency",
+            "default": "NGN",
+            "example": "NGN"
+          },
+          "cardPanMasked": {
+            "type": "string",
+            "description": "Masked card number",
+            "example": "411111******1111"
+          },
+          "authCode": {
+            "type": "string",
+            "description": "Authorization code from processor",
+            "example": "A12345"
+          },
+          "processorRef": {
+            "type": "string",
+            "description": "Processor reference number",
+            "example": "ptxn_abc123def456"
+          },
+          "network": {
+            "type": "string",
+            "description": "Card network (VISA, Mastercard, etc.)",
+            "example": "VISA"
+          },
+          "acquirer": {
+            "type": "string",
+            "description": "Acquiring bank identifier",
+            "example": "ACQ001"
+          },
+          "settledAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Settlement timestamp",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "description": "Transaction status",
+            "enum": ["pending", "initiated", "authorized", "declined", "settled"],
+            "example": "initiated"
+          },
+          "transactionStatus": {
+            "type": "string",
+            "description": "Detailed transaction status",
+            "default": "pending",
+            "example": "pending"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Transaction creation timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Transaction last update timestamp"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "An error occurred"
+          },
+          "error": {
+            "type": "string",
+            "description": "Error details",
+            "example": "Internal server error"
+          }
+        }
+      },
+      "NotFoundErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Not found"
+          },
+          "error": {
+            "type": "string",
+            "description": "Error details",
+            "example": "Not found"
+          }
+        }
+      },
+      "BadRequestErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "Bad Request"
+          },
+          "error": {
+            "type": "string",
+            "description": "Error details",
+            "example": "Bad Request"
+          }
+        }
+      },
+      "Settlement": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique settlement identifier",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "merchantId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Associated merchant ID",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "decimal",
+            "description": "Total settlement amount",
+            "example": 5000.00
+          },
+          "settlementDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Settlement date",
+            "example": "2024-01-15"
+          },
+          "reference": {
+            "type": "string",
+            "description": "Settlement reference number",
+            "example": "SETT-2024-001"
+          },
+          "status": {
+            "type": "string",
+            "description": "Settlement status",
+            "enum": ["pending", "processing", "completed", "failed", "deleted"],
+            "example": "pending"
+          },
+          "failureReason": {
+            "type": "string",
+            "description": "Reason for failure (if status is failed)",
+            "example": "Insufficient funds",
+            "nullable": true
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Completion timestamp",
+            "example": "2024-01-15T10:35:00Z",
+            "nullable": true
+          },
+          "failedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Failure timestamp",
+            "example": "2024-01-15T10:35:00Z",
+            "nullable": true
+          },
+          "transactionIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of transaction IDs included in settlement",
+            "example": ["123", "124", "125"],
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Settlement creation timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Settlement last update timestamp"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Health check endpoints"
+    },
+    {
+      "name": "General",
+      "description": "General API endpoints"
+    },
+    {
+      "name": "Merchants",
+      "description": "Merchant management endpoints"
+    },
+    {
+      "name": "Transactions",
+      "description": "Transaction processing endpoints"
+    },
+    {
+      "name": "Settlements",
+      "description": "Settlement management and webhook endpoints"
+    }
+  ]
 }
