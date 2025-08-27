@@ -1071,10 +1071,6 @@
       "description": "Health check endpoints"
     },
     {
-      "name": "General",
-      "description": "General API endpoints"
-    },
-    {
       "name": "Merchants",
       "description": "Merchant management endpoints"
     },
